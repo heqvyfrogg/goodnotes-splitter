@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# GoodNotes archives & raw data (kept locally, omitted from git)
+*.goodnotes
+*.zip
+
+# Generated outputs & test part folders
+out*/
+test_parts/
+*backup*
+
+# Temporary development analysis scripts & outputs
+_dev_*.py
+_reorder_diff.py
+analyze_search_files.py
+decode_protobuf.py
+*.txt
+*.json
+!web/*.json
+
+# Node & OS
+node_modules/
+.DS_Store
+Thumbs.db

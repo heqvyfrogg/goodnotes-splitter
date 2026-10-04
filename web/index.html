@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>GoodNotes 5MB 分割ツール</title>
+  <style>
+    :root {
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --border-color: #cbd5e1;
+      --text-main: #0f172a;
+      --text-sub: #475569;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --success: #15803d;
+      --success-bg: #f0fdf4;
+      --danger: #b91c1c;
+      --danger-bg: #fef2f2;
+      --radius: 6px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      padding: 16px;
+      line-height: 1.4;
+      font-size: 13px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
+    }
+
+    h1 {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+
+    .description {
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 14px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    }
+
+    .dropzone {
+      border: 2px dashed var(--border-color);
+      border-radius: var(--radius);
+      padding: 28px 16px;
+      text-align: center;
+      cursor: pointer;
+      background: #fafafa;
+      transition: border-color 0.15s, background-color 0.15s;
+    }
+
+    .dropzone:hover, .dropzone.dragover {
+      border-color: var(--primary);
+      background: #eff6ff;
+    }
+
+    .dropzone-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    .dropzone-hint {
+      font-size: 11px;
+      color: var(--text-sub);
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: var(--radius);
+      border: 1px solid transparent;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background-color 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background-color: #ffffff;
+      color: var(--text-main);
+      border-color: var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      background-color: #f1f5f9;
+    }
+
+    .btn-sm {
+      padding: 3px 8px;
+      font-size: 11px;
+      line-height: 1.2;
+    }
+
+    .settings-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-top: 10px;
+      font-size: 12px;
+    }
+
+    .settings-row label {
+      color: var(--text-sub);
+    }
+
+    .settings-row input[type="number"] {
+      width: 70px;
+      padding: 4px 6px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .status-panel {
+      margin-top: 12px;
+      display: none;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 3px;
+      overflow: hidden;
+      margin: 8px 0;
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      background: var(--primary);
+      transition: width 0.1s linear;
+    }
+
+    .status-text {
+      font-size: 11px;
+      color: var(--text-sub);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin-top: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    th {
+      background: #f1f5f9;
+      color: var(--text-sub);
+      font-weight: 600;
+      padding: 6px 10px;
+      border-bottom: 1px solid var(--border-color);
+      height: 28px;
+    }
+
+    td {
+      padding: 5px 10px;
+      border-bottom: 1px solid #e2e8f0;
+      height: 28px;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: #f8fafc;
+    }
+
+    .badge-ok {
+      display: inline-block;
+      padding: 1px 5px;
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 3px;
+      background: var(--success-bg);
+      color: var(--success);
+      border: 1px solid #bbf7d0;
+    }
+
+    .log-box {
+      margin-top: 10px;
+      padding: 8px;
+      background: #0f172a;
+      color: #e2e8f0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+      border-radius: var(--radius);
+      max-height: 160px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .action-bar {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .meta-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 8px;
+      margin-top: 8px;
+      font-size: 12px;
+    }
+
+    .meta-item {
+      background: #f8fafc;
+      padding: 6px 10px;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+    }
+
+    .meta-title {
+      font-size: 11px;
+      color: var(--text-sub);
+      margin-bottom: 2px;
+    }
+
+    .meta-val {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>GoodNotes 5MB 分割ツール</h1>
+      <p class="description">GoodNotes形式ノート（.goodnotes）を5MB未満に自動分割します。端末内ブラウザで全処理が完結するため、外部サーバーへの通信は発生しません。</p>
+    </header>
+
+    <div class="card">
+      <div class="dropzone" id="dropzone">
+        <input type="file" id="fileInput" accept=".goodnotes" style="display: none;">
+        <div class="dropzone-label">.goodnotes ファイルを選択、またはここにドラッグ＆ドロップ</div>
+        <div class="dropzone-hint">対象形式: GoodNotes 5 / 6 アーカイブ（容量無制限）</div>
+      </div>
+
+      <div class="settings-row">
+        <label for="targetMb">1ファイルあたりの上限目標（MB）:</label>
+        <input type="number" id="targetMb" value="4.5" min="1.0" max="4.9" step="0.1">
+        <span style="color: var(--text-sub); font-size: 11px;">※ GoodNotesインポート制限（5.0MB）に合わせて自動調整されます</span>
+      </div>
+
+      <div class="status-panel" id="statusPanel">
+        <div class="progress-bar-container">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <div class="status-text" id="statusText">待機中...</div>
+      </div>
+    </div>
+
+    <div class="card" id="resultCard" style="display: none;">
+      <h2 style="font-size: 14px; font-weight: 700; margin-bottom: 8px;">解析結果・分割概要</h2>
+      <div class="meta-list" id="metaList"></div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>ファイル名</th>
+              <th>ページ範囲</th>
+              <th>ページ数</th>
+              <th>ファイルサイズ</th>
+              <th>判定</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="resultTableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="action-bar">
+        <button class="btn btn-secondary" id="btnShowLog">ログ表示切替</button>
+        <button class="btn btn-primary" id="btnDownloadAll">すべてのパーツを一括保存（ZIP）</button>
+      </div>
+
+      <div class="log-box" id="logBox" style="display: none;"></div>
+    </div>
+  </div>
+
+  <script src="jszip.min.js"></script>
+  <script src="splitter.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
